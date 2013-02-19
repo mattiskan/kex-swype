@@ -3,6 +3,7 @@
 
     <string name="app_name">Svepa</string>
     <string name="hello_world">Hello world!</string>
+    <string name="interpreted_word"></string>
     <string name="menu_settings">Settings</string>
 
 </resources>
