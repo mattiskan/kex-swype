@@ -3,19 +3,21 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity" >
-
-    <TextView
-        android:id="@+id/interpreted_word"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/interpreted_word" />
-
+ 
     <ImageView
-        android:id="@+id/green"
+        android:id="@+id/keyboard"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_centerHorizontal="true"
         android:scaleType="fitXY"
-        android:src="@drawable/green" />
+        android:src="@drawable/keyboard" />
 
+    <EditText
+        android:id="@+id/input_word"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:ems="10" />
+    
 </RelativeLayout>

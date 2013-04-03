@@ -1,21 +1,30 @@
 package se.mattiskan.se;
 
-import java.io.*;
-
-import android.os.Bundle;
+import android.os.*;
 import android.app.Activity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.*;
+import android.widget.EditText;
 
 public class MainActivity extends Activity{
-
+	StatisticsGenerator statistics;
+	private boolean hasSetWord = false;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		StrictMode.enableDefaults();
+		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
+		statistics = new StatisticsGenerator();
+		
+		EditText searchTo = (EditText)findViewById(R.id.input_word);
+		addTextListener(searchTo);
 	}
-
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -26,30 +35,49 @@ public class MainActivity extends Activity{
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event){
+		if(!hasSetWord)
+			return false;
 		try {
-		    FileOutputStream out = openFileOutput("samplefile.txt", MODE_WORLD_READABLE);
-		    OutputStreamWriter osw = new OutputStreamWriter(out); 
-		    
-			final int historySize = event.getHistorySize();
-			final int pointerCount = event.getPointerCount();
-			
-			for (int h = 0; h < historySize; h++) {
-			    Log.d("Mattis", String.format("At time %d:", event.getHistoricalEventTime(h)));
-				for (int p = 0; p < pointerCount; p++) {
-				    Log.d("Mattis", String.format("  pointer %d: (%f,%f)",
-				            event.getPointerId(p), event.getHistoricalX(p, h), event.getHistoricalY(p, h)));
-				}
+			if(event.getAction() == MotionEvent.ACTION_MOVE)
+				statistics.record(event);
+			else if(event.getAction() == MotionEvent.ACTION_UP){
+				statistics.close();
 			}
 			
-			Log.d("Mattis2", String.format("At time %d:", event.getEventTime()));
-			for (int p = 0; p < pointerCount; p++) {
-			    Log.d("Mattis2", String.format("  pointer %d: (%f,%f)",
-			        event.getPointerId(p), event.getX(p), event.getY(p)));
+		} catch (Exception e) {
+			Log.d("Mattis", "Awww fuck");
+			for(StackTraceElement err : e.getStackTrace()){
+				//Log.d("Mattis", err.toString());
 			}
 			
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			System.exit(0);
 		}
 		return false;
 	}
+	
+	private void addTextListener(EditText searchTo){
+	    searchTo.addTextChangedListener(new TextWatcher() {
+
+	        @Override
+	        public void afterTextChanged(Editable s) {
+	        	String word = s.toString();
+	        	if(!word.isEmpty()){
+	        		statistics.reset(word);
+	        		hasSetWord = true;
+	        	}	            
+	        }
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+				
+			}
+	    });
+	}
+	
 }
