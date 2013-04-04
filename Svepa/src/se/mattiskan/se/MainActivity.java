@@ -1,9 +1,9 @@
 package se.mattiskan.se;
 
 import android.os.*;
-import android.app.Activity;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.app.*;
+import android.content.DialogInterface;
+import android.text.*;
 import android.util.Log;
 import android.view.*;
 import android.widget.EditText;
@@ -38,10 +38,30 @@ public class MainActivity extends Activity{
 		if(!hasSetWord)
 			return false;
 		try {
-			if(event.getAction() == MotionEvent.ACTION_MOVE)
+			if(event.getAction() == MotionEvent.ACTION_MOVE || event.getAction() == MotionEvent.ACTION_DOWN)
 				statistics.record(event);
 			else if(event.getAction() == MotionEvent.ACTION_UP){
-				statistics.close();
+				new AlertDialog.Builder(this)
+			        .setIcon(android.R.drawable.ic_dialog_alert)
+			        .setTitle("Submit data?")
+			        .setMessage("Would you like to submit your last swype?")
+    			    .setNegativeButton("No",new DialogInterface.OnClickListener() {
+				        @Override
+				        public void onClick(DialogInterface dialog, int which) {
+				        	statistics.reset();
+				        }
+	
+			        })
+			        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+				        @Override
+				        public void onClick(DialogInterface dialog, int which) {
+				        	statistics.close();
+				        }
+	
+			        })
+			    .show();
+				
+				
 			}
 			
 		} catch (Exception e) {

@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.*;
 
 public class StatisticsGenerator {
+	String word;
 	private FileWriter filewriter;
 	private long referenceTime;
 	private JSONObject wordStatistics;
@@ -55,8 +56,14 @@ public class StatisticsGenerator {
 		return coordinate;
 	}
 	
+	public void reset() {
+		reset(word);
+	}
+
+	
 	public void reset(String word){
 		try {
+			this.word = word;
 			wordStatistics = new JSONObject();
 			swypeCoordinates = new JSONArray();
 			wordStatistics.put("word", word);
@@ -74,7 +81,8 @@ public class StatisticsGenerator {
 			filewriter.write(wordStatistics.toString(2));
 			filewriter.close();*/
 			
-			submitData(wordStatistics.getString("word"));
+			submitData();
+			reset(word);
 			
 		} catch (JSONException e) { 
 			e.printStackTrace();
@@ -83,7 +91,7 @@ public class StatisticsGenerator {
 		} 
 	}
 	
-	private void submitData(String word) throws IOException, JSONException {
+	private void submitData() throws IOException, JSONException {
 	    // Create a new HttpClient and Post Header
 	    HttpClient httpclient = new DefaultHttpClient();
 	    HttpPost httppost = new HttpPost("http://mattiskan.se/projects/kex/submit.php?word="+word);
@@ -102,5 +110,4 @@ public class StatisticsGenerator {
 	        // TODO Auto-generated catch block
 	    }
 	}
-
 }

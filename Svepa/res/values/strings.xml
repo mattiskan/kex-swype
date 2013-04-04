@@ -3,7 +3,8 @@
 
     <string name="app_name">Svepa</string>
     <string name="hello_world">Hello world!</string>
-    <string name="writeMe">applicera</string>
+    <string name="write_me">What will you swype?</string>
     <string name="menu_settings">Settings</string>
+    <color name="background">#FFFFFF</color>
 
 </resources>
