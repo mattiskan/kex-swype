@@ -27,6 +27,7 @@ public class StatisticsGenerator {
 	
 	public StatisticsGenerator() {
 		referenceTime = System.nanoTime()/1000000;
+		setNewWord();
 	}	
 	
 	public void record(MotionEvent event){
@@ -57,11 +58,11 @@ public class StatisticsGenerator {
 	}
 	
 	public void reset() {
-		reset(word);
+		newWord(word);
 	}
 
 	
-	public void reset(String word){
+	public void newWord(String word){
 		try {
 			this.word = word;
 			wordStatistics = new JSONObject();
@@ -72,31 +73,34 @@ public class StatisticsGenerator {
 		}
 	}
 	
-	public void close(){
-		try {
-			wordStatistics.put("data", swypeCoordinates);
-			
-			/*String path = Environment.getExternalStorageDirectory().getPath();
-			filewriter = new FileWriter(new File(path+"/svepa",wordStatistics.getString("word")+".json") ,true);
-			filewriter.write(wordStatistics.toString(2));
-			filewriter.close();*/
-			
-			submitData();
-			reset(word);
-			
-		} catch (JSONException e) { 
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} 
+	private void setNewWord(){
+	    HttpClient httpclient = new DefaultHttpClient();
+	    HttpPost httppost = new HttpPost("http://mattiskan.se/projects/kex/submit.php");
+
+	    try {
+	        // Add your data
+	        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+	        // Execute HTTP Post Request
+	        HttpResponse response = httpclient.execute(httppost);
+	        newWord(EntityUtils.toString(response.getEntity()));
+	        
+	        Log.d("Mattis", "New word: "+ word);
+	    } catch (Exception e) {
+	    	Log.d("Mattis", "Wordget failed :(");
+	    	System.exit(1);
+	    }
 	}
+
 	
-	private void submitData() throws IOException, JSONException {
+	public String submitData() {
 	    // Create a new HttpClient and Post Header
 	    HttpClient httpclient = new DefaultHttpClient();
 	    HttpPost httppost = new HttpPost("http://mattiskan.se/projects/kex/submit.php?word="+word);
 
 	    try {
+			wordStatistics.put("data", swypeCoordinates);
 	        // Add your data
 	        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
 	        nameValuePairs.add(new BasicNameValuePair("json", wordStatistics.toString()));
@@ -104,10 +108,13 @@ public class StatisticsGenerator {
 
 	        // Execute HTTP Post Request
 	        HttpResponse response = httpclient.execute(httppost);
-	        Log.d("Mattis", "Submitted " + wordStatistics.getString("word"));
+	        newWord(EntityUtils.toString(response.getEntity()));
 	        
-	    } catch (ClientProtocolException e) {
-	        // TODO Auto-generated catch block
+	        Log.d("Mattis", "New word: "+ word);
+	    } catch (Exception e) {
+	    	Log.d("Mattis", "Submition failed :(");
+	    	System.exit(1);
 	    }
+	    return word;
 	}
 }

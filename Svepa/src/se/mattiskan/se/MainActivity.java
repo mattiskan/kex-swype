@@ -11,7 +11,10 @@ import android.widget.EditText;
 public class MainActivity extends Activity{
 	StatisticsGenerator statistics;
 	private boolean hasSetWord = false;
+	private boolean autoChangingWord = false;
 	
+	
+	EditText inputTextView;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		StrictMode.enableDefaults();
@@ -20,9 +23,11 @@ public class MainActivity extends Activity{
 		setContentView(R.layout.activity_main);
 		
 		statistics = new StatisticsGenerator();
+		changeWord(statistics.word);
 		
-		EditText searchTo = (EditText)findViewById(R.id.input_word);
-		addTextListener(searchTo);
+		inputTextView = (EditText)findViewById(R.id.input_word);
+		addTextListener();
+		hasSetWord = true;
 	}
 	
 	@Override
@@ -32,6 +37,11 @@ public class MainActivity extends Activity{
 		return true;
 	}
 
+	private void changeWord(String newWord){
+    	autoChangingWord = true;
+    	((EditText)findViewById(R.id.input_word)).setText(newWord);
+    	autoChangingWord = false;
+	}
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event){
@@ -55,19 +65,18 @@ public class MainActivity extends Activity{
 			        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 				        @Override
 				        public void onClick(DialogInterface dialog, int which) {
-				        	statistics.close();
+				        	changeWord(statistics.submitData());
 				        }
 	
 			        })
-			    .show();
-				
-				
+			    .show();				
 			}
 			
 		} catch (Exception e) {
 			Log.d("Mattis", "Awww fuck");
+			//Log.d("Mattis", e.getMessage());
 			for(StackTraceElement err : e.getStackTrace()){
-				//Log.d("Mattis", err.toString());
+				Log.d("Mattis", err.toString());
 			}
 			
 			System.exit(0);
@@ -75,14 +84,14 @@ public class MainActivity extends Activity{
 		return false;
 	}
 	
-	private void addTextListener(EditText searchTo){
-	    searchTo.addTextChangedListener(new TextWatcher() {
+	private void addTextListener(){
+	    inputTextView.addTextChangedListener(new TextWatcher() {
 
 	        @Override
 	        public void afterTextChanged(Editable s) {
 	        	String word = s.toString();
-	        	if(!word.isEmpty()){
-	        		statistics.reset(word);
+	        	if(!word.isEmpty() && !autoChangingWord ){
+	        		statistics.newWord(word);
 	        		hasSetWord = true;
 	        	}	            
 	        }
