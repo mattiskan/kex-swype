@@ -9,6 +9,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.*;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -64,11 +65,14 @@ public class StatisticsGenerator {
 	
 	public void newWord(String word){
 		try {
+			Log.d("Mattis", "UTF-8: "+word);
 			this.word = word;
 			wordStatistics = new JSONObject();
 			swypeCoordinates = new JSONArray();
 			wordStatistics.put("word", word);
-		} catch (JSONException e) {
+//			wordStatistics.put("word", new String(word.getBytes("ISO-8859-1"), "UTF-8"));
+		}// catch(UnsupportedEncodingException e){ e.printStackTrace();} 
+		catch (JSONException e) {
 			e.printStackTrace();
 		}
 	}
@@ -84,11 +88,10 @@ public class StatisticsGenerator {
 
 	        // Execute HTTP Post Request
 	        HttpResponse response = httpclient.execute(httppost);
-	        newWord(EntityUtils.toString(response.getEntity()));
+	        newWord(EntityUtils.toString(response.getEntity(), "UTF-8"));
 	        
-	        Log.d("Mattis", "New word: "+ word);
 	    } catch (Exception e) {
-	    	Log.d("Mattis", "Wordget failed :(");
+	    	Log.d("Mattis", "WordGet failed :(");
 	    	System.exit(1);
 	    }
 	}
@@ -104,13 +107,15 @@ public class StatisticsGenerator {
 	        // Add your data
 	        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
 	        nameValuePairs.add(new BasicNameValuePair("json", wordStatistics.toString()));
-	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+	        UrlEncodedFormEntity entity = new UrlEncodedFormEntity(nameValuePairs);
+	        entity.setContentEncoding(HTTP.ISO_8859_1);
+	        httppost.setEntity(entity);
 
 	        // Execute HTTP Post Request
 	        HttpResponse response = httpclient.execute(httppost);
 	        newWord(EntityUtils.toString(response.getEntity()));
 	        
-	        Log.d("Mattis", "New word: "+ word);
+	        //Log.d("Mattis", "New word: "+ word);
 	    } catch (Exception e) {
 	    	Log.d("Mattis", "Submition failed :(");
 	    	System.exit(1);
